@@ -5,6 +5,7 @@ Player = Class{__includes = Entity}
 function Player:init(def)
     Entity.init(self, def)
     self.score = 0
+    
 end
 
 function Player:update(dt)
@@ -17,44 +18,76 @@ end
 
 function Player:checkLeftCollisions(dt)
     -- check for left two tiles collision
-    local tileTopLeft = self.map:pointToTile(self.x + 1, self.y + 1)
-    local tileBottomLeft = self.map:pointToTile(self.x + 1, self.y + self.height - 1)
+    local tileTopLeft = self.map:getCollisionTile(self.x, self.y + 1)
+    local tileBottomLeft = self.map:getCollisionTile(self.x, self.y + self.height - 1)
 
     -- place player outside the X bounds on one of the tiles to reset any overlap
-    if (tileTopLeft and tileBottomLeft) and (tileTopLeft:collidable() or tileBottomLeft:collidable()) then
-        self.x = (tileTopLeft.x - 1) * TILE_SIZE + tileTopLeft.width - 1
-    else
-        
-        self.y = self.y - 1
-        local collidedObjects = self:checkObjectCollisions()
-        self.y = self.y + 1
-
-        -- reset X if new collided object
-        if #collidedObjects > 0 then
-            self.x = self.x + PLAYER_WALK_SPEED * dt
-        end
+    if tileTopLeft and tileTopLeft:collidable() then
+        self.x = tileTopLeft.x + TILE_SIZE + 1
+        return true
+    elseif tileBottomLeft and tileBottomLeft:collidable() then
+        self.x = tileBottomLeft.x + TILE_SIZE + 1
+        return true
     end
+    return false
 end
 
 function Player:checkRightCollisions(dt)
     -- check for right two tiles collision
-    local tileTopRight = self.map:pointToTile(self.x + self.width - 1, self.y + 1)
-    local tileBottomRight = self.map:pointToTile(self.x + self.width - 1, self.y + self.height - 1)
+    local tileTopRight = self.map:getCollisionTile(self.x + self.width, self.y + 1)
+    local tileBottomRight = self.map:getCollisionTile(self.x + self.width, self.y + self.height - 1)
 
     -- place player outside the X bounds on one of the tiles to reset any overlap
-    if (tileTopRight and tileBottomRight) and (tileTopRight:collidable() or tileBottomRight:collidable()) then
-        self.x = (tileTopRight.x - 1) * TILE_SIZE - self.width
-    else
-        
+    
+    if tileTopRight and tileTopRight:collidable() then
+        self.x = tileTopRight.x - TILE_SIZE - 1
+        return true
+    elseif tileBottomRight and tileBottomRight:collidable() then
+        self.x = tileBottomRight.x - TILE_SIZE - 1
+        return true
+    end
+    return false
+end
+
+function Player:checkDownCollisions(dt)
+    -- check for right two tiles collision
+    local tileBottomLeft = self.map:getCollisionTile(self.x, self.y + self.height)
+    local tileBottomRight = self.map:getCollisionTile(self.x + self.width, self.y + self.height)
+
+    -- place player outside the X bounds on one of the tiles to reset any overlap
+    
+    if tileBottomLeft and tileBottomLeft:collidable() then
+        self.y = tileBottomLeft.y - TILE_SIZE - 1
+        return true
+    elseif tileBottomRight and tileBottomRight:collidable() then
+        self.y = tileBottomRight.y - TILE_SIZE - 1
+        return true
+    end
+    return false
+end
+
+function Player:checkUpCollisions(dt)
+    -- check for right two tiles collision
+    local tileTopLeft = self.map:getCollisionTile(self.x, self.y)
+    local tileTopRight = self.map:getCollisionTile(self.x + self.width, self.y)
+
+    -- place player outside the X bounds on one of the tiles to reset any overlap
+    if (tileTopLeft and tileTopRight) and (tileTopRight:collidable() or tileTopLeft:collidable()) then
+        self.y = (tileTopRight.y - 1) + TILE_SIZE 
+    else 
         self.y = self.y - 1
         local collidedObjects = self:checkObjectCollisions()
         self.y = self.y + 1
+    end
+end
 
-        -- reset X if new collided object
-        if #collidedObjects > 0 then
-            self.x = self.x - PLAYER_WALK_SPEED * dt
+function Player:checkEntityCollisions()
+    for e, entity in pairs(self.level.entities) do
+        if entity:collides(self) then
+            return true
         end
     end
+    return false
 end
 
 function Player:checkObjectCollisions()

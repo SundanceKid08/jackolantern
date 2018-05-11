@@ -18,12 +18,16 @@ function Entity:init(def)
     self.stateMachine = def.stateMachine
 
     self.direction = 'left'
-
+    self.hasZapped = false
     -- reference to tile map so we can check collisions
     self.map = def.map
 
     -- reference to level for tests against other entities + objects
     self.level = def.level
+end
+
+function Entity:processAI(dt)
+    self.stateMachine:processAI(dt)
 end
 
 function Entity:changeState(state, params)
@@ -41,5 +45,5 @@ end
 
 function Entity:render()
     love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.currentAnimation:getCurrentFrame()],
-        self.x, self.y, 0, self.direction == 'right' and 1 or -1, 1, 8, 10)
+        self.x + 8, self.y + 10, 0, self.direction == 'right' and 1 or -1, 1, 8, 10)
 end

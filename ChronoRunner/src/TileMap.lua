@@ -18,22 +18,27 @@ end
     and update either per-tile or per-map animations for appropriately flagged tiles!
 ]]
 function TileMap:update(dt)
-
+    for t, tile in pairs(self.tiles) do
+        tile:update(dt)
+    end
+        
 end
 
---[[
-    Returns the x, y of a tile given an x, y of coordinates in the world space.
-]]
-function TileMap:pointToTile(x, y)
-    if x < 0 or x > self.width * TILE_SIZE or y < 0 or y > self.height * TILE_SIZE then
-        return nil
+function TileMap:getCollisionTile(x, y)
+    for t, tile in pairs(self.tiles) do
+        if tile.x < x and tile.x + TILE_SIZE > x then
+            if tile.y < y and tile.y  + TILE_SIZE > y then
+                return tile
+            end
+        end
     end
-    
-    return self.tiles[math.floor(y / TILE_SIZE) + 1][math.floor(x / TILE_SIZE) + 1]
+    return nil
 end
 
 function TileMap:render()
     for k, v in pairs(self.tiles) do
-        v:render()
+        if not v.zapped then
+            v:render()
+        end
     end
 end

@@ -15,6 +15,10 @@ function GameObject:init(def)
     self.onCollide = def.onCollide
     self.onConsume = def.onConsume
     self.hit = def.hit
+    self.currentAnimation = Animation{
+        frames = {1,2,3,4,5,6,7,8},
+        interval = 0.1
+    }
 end
 
 function GameObject:collides(target)
@@ -27,5 +31,6 @@ function GameObject:update(dt)
 end
 
 function GameObject:render()
-    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame], self.x, self.y)
+    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.currentAnimation:getCurrentFrame()],
+        self.x, self.y)
 end

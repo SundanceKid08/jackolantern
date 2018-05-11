@@ -25,3 +25,7 @@ end
 function StateMachine:render()
 	self.current:render()
 end
+
+function StateMachine:processAI(dt)
+	self.current:processAI(dt)
+end
